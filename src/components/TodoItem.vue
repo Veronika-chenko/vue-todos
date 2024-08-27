@@ -91,6 +91,7 @@ li {
       width: 100%;
       padding: 2px 6px;
       border: 2px solid #41b080;
+      font-size: 16px;
     }
   }
 
