@@ -64,6 +64,7 @@ li {
     0 8px 10px -6px rgb(0 0 0 / 0.1);
 
   input[type="checkbox"] {
+    flex-shrink: 0;
     appearance: none;
     width: 20px;
     height: 20px;
@@ -79,6 +80,8 @@ li {
 
   .todo {
     flex: 1;
+    width: calc(100% - 110px);
+    overflow: hidden;
 
     .completed-todo {
       text-decoration: line-through;
@@ -94,6 +97,7 @@ li {
 
   .todo-actions {
     display: flex;
+    flex-shrink: 0;
     gap: 6px;
     .icon {
       cursor: pointer;
