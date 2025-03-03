@@ -4,10 +4,10 @@ import TodoItem from "@/components/TodoItem.vue";
 import { uid } from "uid";
 import { ref, watch, computed } from "vue";
 import { Icon } from "@iconify/vue";
-const todoList = ref([]);
+const todos = ref([]);
 
 watch(
-  todoList,
+  todos,
   () => {
     setTodoListLocalStorage();
   },
@@ -18,66 +18,74 @@ watch(
 );
 // automatically tracks the reactive dependencies:
 const todoCompleted = computed(() => {
-  return todoList.value.every((todo) => todo.isCompleted);
+  return todos.value.every((todo) => todo.isCompleted);
 });
 
 const fetchTodoList = () => {
   const savedTodoList = JSON.parse(localStorage.getItem("todoList"));
   if (savedTodoList) {
-    todoList.value = savedTodoList;
+    todos.value = savedTodoList;
   }
 };
 
 fetchTodoList();
 
 const setTodoListLocalStorage = () => {
-  localStorage.setItem("todoList", JSON.stringify(todoList.value));
+  localStorage.setItem("todoList", JSON.stringify(todos.value));
 };
 
-const createTodo = (todo) => {
-  todoList.value.push({
+function createTodo(todo) {
+  todos.value.push({
     id: uid(),
     todo,
-    isCompleted: null,
-    isEditing: null,
-  });
-};
-const toggleTodoComplete = (todoPos) => {
-  todoList.value[todoPos].isCompleted = !todoList.value[todoPos].isCompleted;
-};
-const toggleEditTodo = (todoPos) => {
-  todoList.value[todoPos].isEditing = !todoList.value[todoPos].isEditing;
-};
-const updateTodo = (todoVal, todoPos) => {
-  if (todoVal.trim()) {
-    todoList.value[todoPos].todo = todoVal;
+    isCompleted: false,
+    isEditing: false,
+  })
+}
+
+function toggleTodoComplete(todoId) {
+  todos.value = todos.value.map((todo) =>
+    todo.id === todoId ? { ...todo, isCompleted: !todo.isCompleted } : todo
+  )
+}
+
+function toggleEditTodo(todoId) {
+  todos.value = todos.value.map((todo) =>
+    todo.id === todoId ? { ...todo, isEditing: !todo.isEditing } : todo
+  )
+}
+
+function updateTodo(value, todoId) {
+  if (value.trim()) {
+    todos.value = todos.value.map((todo) => (todo.id === todoId ? { ...todo, todo: value } : todo))
   }
-};
-const deleteTodo = (todoId) => {
-  todoList.value = todoList.value.filter((todo) => todo.id !== todoId);
-};
+}
+
+function deleteTodo(id) {
+  todos.value = todos.value.filter((todo) => todo.id !== id)
+}
 </script>
 
 <template>
   <main>
     <h1>Create Todos</h1>
     <TodoCreator @createTodo="createTodo" />
-    <ul class="todo-list" v-if="todoList.length > 0">
+    <ul class="todo-list" v-if="todos.length > 0">
       <TodoItem
-        v-for="(todo, index) in todoList"
+        v-for="todo in todos"
         :key="todo.id"
         :todo="todo"
-        :index="index"
         @toggle-complete="toggleTodoComplete"
-        @edit-todo="toggleEditTodo"
+        @toggle-edit="toggleEditTodo"
         @update-todo="updateTodo"
-        @delete-todo="deleteTodo" />
+        @delete-todo="deleteTodo"
+      />
     </ul>
     <p class="todos-msg" v-else>
       <Icon icon="noto-v1:sad-but-relieved-face" width="22px" height="22px" />
       <span>You have no todos to complete! Add one!</span>
     </p>
-    <p v-if="todoCompleted && todoList.length > 0" class="todos-msg">
+    <p v-if="todoCompleted && todos.length > 0" class="todos-msg">
       <Icon icon="noto-v1:party-popper" width="22px" height="22px" />
       <span>You have completed all your todos!</span>
     </p>
